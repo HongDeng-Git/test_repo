@@ -13,7 +13,7 @@ class StraightDC(i3.PCell):
         return WireWaveguideTemplate()
     
     def _default_wg(self):
-        return i3.Waveguide(trace_template = self.trace_template)
+        return i3.Waveguide(name = self.name + "wg", trace_template = self.trace_template)
     
     class Layout(i3.LayoutView):
         
@@ -47,7 +47,13 @@ class StraightDC(i3.PCell):
             return ports
         
     class Netlist(i3.NetlistView):
-        pass
+        def _generate_netlist(self, nl):
+            nl += i3.OpticalTerm(name='in1')
+            nl += i3.OpticalTerm(name='in2')
+            nl += i3.OpticalTerm(name='out1')
+            nl += i3.OpticalTerm(name='out2')
+            return nl
+            
 
 from picazzo3.routing.place_route import PlaceAndConnect
 
@@ -61,7 +67,7 @@ class DC(PlaceAndConnect):
     def _default_Straight_DC(self):
         return StraightDC(trace_template = self.trace_template)
     def _default_wg(self):
-        return i3.RoundedWaveguide(name = "trace", trace_template = self.trace_template)
+        return i3.RoundedWaveguide(name =self.name +"trace", trace_template = self.trace_template)
     def _default_trace_template(self):
         return WireWaveguideTemplate()
     def _default_child_cells(self):
@@ -83,10 +89,10 @@ class DC(PlaceAndConnect):
     def _default_external_port_names(self):
         
         epn = {}
-        epn["in1"] = "wg_in1:in"
-        epn["in2"] = "wg_in2:in"
-        epn["out1"] = "wg_out1:out"
-        epn["out2"] = "wg_out2:out"
+        epn["wg_in1:out"] = "in1"
+        epn["wg_in2:out"] = "in2"
+        epn["wg_out1:out"] = "out1"
+        epn["wg_out2:out"] = "out2"
         return epn
     
     class Layout(PlaceAndConnect.Layout):
@@ -135,6 +141,7 @@ class DC(PlaceAndConnect):
                     "wg_out1": i3.Translation(translation=(-wg_in_x+self.coupl_length/2, -self.coupling_gap/2)),
                     "wg_out2": i3.VMirror() +i3.Translation(translation=(-wg_in_x+self.coupl_length/2, +self.coupling_gap/2)),
                     }
+        
     
     
     
@@ -143,6 +150,6 @@ class DC(PlaceAndConnect):
 if __name__ == "__main__":
     temp = DC()
     temp_lo = temp.Layout()
-    #temp_lo.visualize(annotate = True)
-    temp_lo.write_gdsii("test.gds")
+    temp_lo.visualize(annotate = True)
+    #temp_lo.write_gdsii("test.gds")
     print "down"
