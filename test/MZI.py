@@ -39,6 +39,10 @@ class MZI_for_DC_test(PlaceAndAutoRoute):
         return links
     def _default_external_port_names(self):
         epn = {}
+        epn["splitter:in1"] = "in1"
+        epn["splitter:in2"] = "in2"
+        epn["combiner:out1"] = "out1"
+        epn["combiner:out2"] = "out2"
         return epn
     
     
@@ -74,7 +78,7 @@ class MZI_for_DC_test(PlaceAndAutoRoute):
             return 10
         def _default_rounding_algorithm(self):
             return i3.SplineRoundingAlgorithm()
-        def _default_min_distance(self):
+        def _default_min_straight(self):
             return 0.0
         
         def _default_child_transformations(self):
